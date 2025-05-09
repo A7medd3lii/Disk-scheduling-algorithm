@@ -1,0 +1,146 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void fcfs(int arr[], int head, int n) {
+    int total = 0;
+    printf("\nFCFS Order: ");
+    for (int i = 0; i < n; i++) {
+        printf("%d ", arr[i]);
+        total += abs(head - arr[i]);
+        head = arr[i];
+    }
+    printf("\nTotal Head Movement = %d\n", total);
+}
+
+void scan(int arr[], int head, int n, int max_cylinder) {
+    int total = 0;
+    int *left = malloc(n * sizeof(int));
+    int *right = malloc(n * sizeof(int));
+    int l = 0, r = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < head)
+            left[l++] = arr[i];
+        else
+            right[r++] = arr[i];
+    }
+
+    // Sort left and right
+    for (int i = 0; i < l - 1; i++)
+        for (int j = 0; j < l - i - 1; j++)
+            if (left[j] < left[j + 1]) {
+                int temp = left[j];
+                left[j] = left[j + 1];
+                left[j + 1] = temp;
+            }
+
+    for (int i = 0; i < r - 1; i++)
+        for (int j = 0; j < r - i - 1; j++)
+            if (right[j] > right[j + 1]) {
+                int temp = right[j];
+                right[j] = right[j + 1];
+                right[j + 1] = temp;
+            }
+
+    printf("\nSCAN Order: ");
+    for (int i = 0; i < r; i++) {
+        printf("%d ", right[i]);
+        total += abs(head - right[i]);
+        head = right[i];
+    }
+
+    if (l > 0) {
+        total += abs(head - (max_cylinder - 1));
+        head = max_cylinder - 1;
+        total += abs(head - left[0]);
+        head = left[0];
+
+        for (int i = 0; i < l; i++) {
+            printf("%d ", left[i]);
+            if (i != 0) {
+                total += abs(head - left[i]);
+                head = left[i];
+            }
+        }
+    }
+
+    printf("\nTotal Head Movement = %d\n", total);
+    free(left);
+    free(right);
+}
+
+void cscan(int arr[], int head, int n, int max_cylinder) {
+    int total = 0;
+    int *left = malloc(n * sizeof(int));
+    int *right = malloc(n * sizeof(int));
+    int l = 0, r = 0;
+
+    for (int i = 0; i < n; i++) {
+        if (arr[i] < head)
+            left[l++] = arr[i];
+        else
+            right[r++] = arr[i];
+    }
+
+    // Sort right and left
+    for (int i = 0; i < r - 1; i++)
+        for (int j = 0; j < r - i - 1; j++)
+            if (right[j] > right[j + 1]) {
+                int temp = right[j];
+                right[j] = right[j + 1];
+                right[j + 1] = temp;
+            }
+
+    for (int i = 0; i < l - 1; i++)
+        for (int j = 0; j < l - i - 1; j++)
+            if (left[j] > left[j + 1]) {
+                int temp = left[j];
+                left[j] = left[j + 1];
+                left[j + 1] = temp;
+            }
+
+    printf("\nC-SCAN Order: ");
+    for (int i = 0; i < r; i++) {
+        printf("%d ", right[i]);
+        total += abs(head - right[i]);
+        head = right[i];
+    }
+
+    if (l > 0) {
+        total += abs(head - (max_cylinder - 1));
+        total += abs(0 - (max_cylinder - 1));
+        head = 0;
+
+        for (int i = 0; i < l; i++) {
+            printf("%d ", left[i]);
+            total += abs(head - left[i]);
+            head = left[i];
+        }
+    }
+
+    printf("\nTotal Head Movement = %d\n", total);
+    free(left);
+    free(right);
+}
+
+int main() {
+    int n, head, max_cylinder = 5000;
+
+    printf("Enter number of disk requests: ");
+    scanf("%d", &n);
+    int *queue = malloc(n * sizeof(int));
+
+    printf("Enter disk request queue: ");
+    for (int i = 0; i < n; i++)
+        scanf("%d", &queue[i]);
+
+    printf("Enter initial head position: ");
+    scanf("%d", &head);
+
+    fcfs(queue, head, n);
+    scan(queue, head, n, max_cylinder);
+    cscan(queue, head, n, max_cylinder);
+
+    free(queue);
+    return 0;
+}
